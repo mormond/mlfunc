@@ -1,0 +1,23 @@
+GET http://127.0.0.1:7071/api/Info
+
+###
+
+GET http://127.0.0.1:7071/api/Params
+
+###
+
+POST http://127.0.0.1:7071/api/Predict 
+content-type: application/json
+
+{
+    "Pclass": 0,
+    "Age": 20,
+    "SibSp": 0,
+    "Parch": 0,
+    "Fare": 1,
+    "Gender": "female",
+    "Port": "Cherbourg"
+}
+
+
+
