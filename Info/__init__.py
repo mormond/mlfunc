@@ -9,7 +9,7 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     localdir = context.function_directory
 
     try:
-        with open(os.path.join(localdir, 'metadata.json')) as f:
+        with open(os.path.join(localdir, '../data/metadata.json')) as f:
             metadata = json.load(f)
     except Exception as err:
         print('### EXCEPTION:', str(err))

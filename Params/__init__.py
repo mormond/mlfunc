@@ -12,7 +12,7 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     lookup = {}
 
     try:
-        with open(os.path.join(localdir, 'lookup.pkl'), 'rb') as lookup_file:
+        with open(os.path.join(localdir, '../data/lookup.pkl'), 'rb') as lookup_file:
             lookup = pickle.load(lookup_file)
             if not str(type(lookup).__name__).startswith("OrderedDict"):
                 return func.HttpResponse("### !ERROR: {} is not a OrderedDict object".format(lookup_name), status_code=500)
