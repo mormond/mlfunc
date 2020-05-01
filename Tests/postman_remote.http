@@ -1,0 +1,22 @@
+GET https://.azurewebsites.net/api/Info
+
+###
+
+GET https://.azurewebsites.net/api/Params
+
+###
+
+POST https://.azurewebsites.net/api/Predict 
+content-type: application/json
+
+{
+    "Pclass": 0,
+    "Age": 20,
+    "SibSp": 0,
+    "Parch": 0,
+    "Fare": 1,
+    "Gender": "female",
+    "Port": "Cherbourg"
+}
+
+
