@@ -172,7 +172,7 @@
                     "fileUris": [
                         "[concat(parameters('_artifactsLocation'), '/funcdeploy.sh')]"
                     ],
-                    "commandToExecute": "[concat('bash hello.sh ', reference(variables('virtualMachineName'),'2019-07-01').vmId)]"
+                    "commandToExecute": "[concat('bash funcdeploy.sh ', reference(variables('virtualMachineName'),'2019-07-01').vmId)]"
 
                 }
             }
