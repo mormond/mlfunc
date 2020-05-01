@@ -15,7 +15,11 @@
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "functionWorkerRuntime": "python",
-        "storageAccountType": "Standard_LRS"
+        "storageAccountType": "Standard_LRS",
+        "linkedTemplateUri": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment/template.json",
+        "adminUsername": "deployadmin",
+        "adminPassword": "",
+        "_artifactsLocation": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment"
     },
     "resources": [
         {
@@ -99,6 +103,30 @@
             "properties": {
                 "ApplicationId": "[variables('applicationInsightsName')]",
                 "Request_Source": "IbizaWebAppExtensionCreate"
+            }
+        },
+        {
+            "name": "linkedTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linkedTemplateUri')]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('adminPassword')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[variables('_artifactsLocation')]"                    }
+                }
             }
         }
     ]
