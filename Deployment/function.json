@@ -14,8 +14,6 @@
         "applicationInsightsName": "[variables('functionAppName')]",
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "functionWorkerRuntime": "python",
-        "storageAccountType": "Standard_LRS",
         "linkedTemplateUri": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment/template.json",
         "adminUsername": "deployadmin",
         "adminPassword": "",
@@ -23,80 +21,79 @@
     },
     "resources": [
         {
+            "apiVersion": "2019-06-01",
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[variables('storageAccountName')]",
-            "apiVersion": "2018-07-01",
             "location": "[variables('location')]",
-            "kind": "Storage",
             "sku": {
-                "name": "[variables('storageAccountType')]"
+                "name": "Standard_LRS"
+            },
+            "properties": {
+                "supportsHttpsTrafficOnly": true
             }
         },
         {
             "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2018-02-01",
+            "apiVersion": "2018-11-01",
             "name": "[variables('hostingPlanName')]",
             "location": "[variables('location')]",
+            "kind": "linux",
             "sku": {
-                "name": "Y1",
-                "tier": "Dynamic"
+                "Name": "Y1",
+                "Tier": "Dynamic"
             },
             "properties": {
                 "name": "[variables('hostingPlanName')]",
-                "computeMode": "Dynamic"
+                "workerSize": "0",
+                "workerSizeId": "0",
+                "numberOfWorkers": "1",
+                "reserved": true,
+                "hostingEnvironment": ""
             }
         },
         {
-            "apiVersion": "2015-08-01",
+            "apiVersion": "2018-11-01",
             "type": "Microsoft.Web/sites",
             "name": "[variables('functionAppName')]",
             "location": "[variables('location')]",
-            "kind": "functionapp",
+            "kind": "functionapp,linux",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                "[concat('microsoft.insights/components/', variables('applicationInsightsName'))]",
+                "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
             ],
             "properties": {
+                "name": "[variables('functionAppName')]",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "hostingEnvironment": "",
+                "clientAffinityEnabled": false,
                 "siteConfig": {
                     "appSettings": [
                         {
                             "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(variables('functionAppName'))]"
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2019-06-01').keys[0].value)]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~2"
+                            "value": "~3"
                         },
                         {
-                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "~10"
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "python"
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                             "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
-                        },
-                        {
-                            "name": "FUNCTIONS_WORKER_RUNTIME",
-                            "value": "[variables('functionWorkerRuntime')]"
                         }
                     ]
                 }
             }
         },
         {
-            "apiVersion": "2018-05-01-preview",
+            "apiVersion": "2015-05-01",
             "name": "[variables('applicationInsightsName')]",
             "type": "microsoft.insights/components",
-            "location": "East US",
+            "location": "[variables('location')]",
             "tags": {
                 "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
             },
@@ -125,7 +122,8 @@
                         "value": "[variables('adminPassword')]"
                     },
                     "_artifactsLocation": {
-                        "value": "[variables('_artifactsLocation')]"                    }
+                        "value": "[variables('_artifactsLocation')]"
+                    }
                 }
             }
         }
