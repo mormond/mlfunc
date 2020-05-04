@@ -130,3 +130,5 @@ local.settings.json
 .python_packages
 **.pkl
 metadata.json
+requirements.zip
+Deployment/linuxfunctionvanilla.json
