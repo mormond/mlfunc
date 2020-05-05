@@ -5,6 +5,18 @@
         "location": {
             "defaultvalue": "southcentralus",
             "type": "string"
+        },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "sp_ID": {
+            "type": "string"
+        },
+        "sp_Secret": {
+            "type": "securestring"
+        },
+        "sp_Tenant": {
+            "type": "string"
         }
     },
     "variables": {
@@ -16,7 +28,10 @@
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "linkedTemplateUri": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment/template.json",
         "adminUsername": "deployadmin",
-        "adminPassword": "",
+        "adminPassword": "[parameters('adminPassword')]",
+        "sp_ID": "[parameters('sp_ID')]",
+        "sp_Secret": "[parameters('sp_Secret')]",
+        "sp_Tenant": "[parameters('sp_Tenant')]",
         "_artifactsLocation": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment"
     },
     "resources": [
@@ -123,6 +138,18 @@
                     },
                     "_artifactsLocation": {
                         "value": "[variables('_artifactsLocation')]"
+                    },
+                    "sp_ID": {
+                        "value": "[variables('sp_ID')]"
+                    },
+                    "sp_Secret": {
+                        "value": "[variables('sp_Secret')]"
+                    },
+                    "sp_Tenant": {
+                        "value": "[variables('sp_Tenant')]"
+                    },
+                    "functionAppName": {
+                        "value": "[variables('functionAppName')]"
                     }
                 }
             }
