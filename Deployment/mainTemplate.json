@@ -5,18 +5,6 @@
         "location": {
             "defaultvalue": "[resourceGroup().location]",
             "type": "string"
-        },
-        "adminPassword": {
-            "type": "securestring"
-        },
-        "sp_ID": {
-            "type": "string"
-        },
-        "sp_Secret": {
-            "type": "securestring"
-        },
-        "sp_Tenant": {
-            "type": "string"
         }
     },
     "variables": {
@@ -26,15 +14,29 @@
         "applicationInsightsName": "[variables('functionAppName')]",
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "linkedTemplateUri": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment/template.json",
         "adminUsername": "deployadmin",
-        "adminPassword": "[parameters('adminPassword')]",
-        "sp_ID": "[parameters('sp_ID')]",
-        "sp_Secret": "[parameters('sp_Secret')]",
-        "sp_Tenant": "[parameters('sp_Tenant')]",
-        "_artifactsLocation": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment"
+        "adminPassword": "",
+        "sp_ID": "",
+        "sp_Secret": "",
+        "sp_Tenant": "",
+        "_artifactsLocation": "[deployment().properties.templateLink.uri]",
+        "linkedTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
     },
     "resources": [
+        {
+            "apiVersion": "2018-02-01",
+            "name": "pid-e0d93af3-ab78-4d46-a726-974a3863a126",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                    ]
+                }
+            }
+        },
         {
             "apiVersion": "2019-06-01",
             "type": "Microsoft.Storage/storageAccounts",
