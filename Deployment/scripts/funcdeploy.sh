@@ -5,6 +5,7 @@ PASS=$2
 TENANT=$3
 RG=$4
 FUNCAPPNAME=$5
+APPPACKAGEURI = $6
 
 echo $USER $TENANT $RG $FUNCAPPNAME
 
@@ -15,7 +16,7 @@ echo '<<<DONE>>> Install Azure CLI'
 
 #Grab python app package
 echo 'Download Python app package'
-curl  https://meobucket.blob.core.windows.net/morescripts/requirements.zip >> requirements.zip
+curl  $APPPACKAGEURI >> apppackage.zip
 echo '<<<DONE>>> Download Python app package'
 
 echo 'Azure login'
@@ -23,7 +24,7 @@ az login --service-principal -u $USER -p $PASS -t $TENANT
 echo '<<<DONE>>> Azure login'
 
 echo 'Deploy function app'
-az functionapp deployment source config-zip -g $RG -n $FUNCAPPNAME --src ./requirements.zip
+az functionapp deployment source config-zip -g $RG -n $FUNCAPPNAME --src ./apppackage.zip
 echo '<<<DONE>>> Deploy function app'
 
 echo 'Done'
