@@ -53,7 +53,9 @@
         "virtualMachineSize": "Standard_B1s",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]"
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "bashScriptUri": "[uri(parameters('_artifactsLocation'), 'scripts/funcdeploy.sh')]",
+        "pythonPackageUri": "[uri(parameters('_artifactsLocation'), 'scripts/apppackage.zip')]"
     },
     "resources": [
         {
@@ -176,11 +178,11 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[concat(parameters('_artifactsLocation'), '/funcdeploy.sh')]"
+                        "[variables('bashScriptUri')]"
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'))]"
+                    "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'), ' ', variables('pythonPackageUri'))]"
                 }
             }
         }
