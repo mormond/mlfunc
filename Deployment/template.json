@@ -3,20 +3,29 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "defaultvalue": "southcentralus",
             "type": "string"
         },
         "adminUsername": {
-            "defaultvalue": "deployadmin",
             "type": "string"
         },
         "adminPassword": {
             "type": "securestring"
         },
-        "_artifactsLocation": {
-            "defaultValue": "https://raw.githubusercontent.com/mormond/mlfunc/master/Deployment",
+        "sp_ID": {
             "type": "string"
-        }
+        },
+        "sp_Secret": {
+            "type": "securestring"
+        },
+        "sp_Tenant": {
+            "type": "string"
+        },
+        "_artifactsLocation": {
+            "type": "string"
+        },
+        "functionAppName": {
+            "type": "string"
+        }        
     },
     "variables": {
         "networkInterfaceName": "dep-if",
@@ -169,8 +178,7 @@
                     "fileUris": [
                         "[concat(parameters('_artifactsLocation'), '/funcdeploy.sh')]"
                     ],
-                    "commandToExecute": "[concat('bash funcdeploy.sh ', reference(variables('virtualMachineName'),'2019-07-01').vmId)]"
-
+                    "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'))]"
                 }
             }
         }
