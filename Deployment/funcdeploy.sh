@@ -9,7 +9,7 @@ FUNCAPPNAME=$5
 echo $USER $TENANT $RG $FUNCAPPNAME
 
 #Install Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+#curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 #Grab python app package
 curl  https://meobucket.blob.core.windows.net/morescripts/requirements.zip >> requirements.zip
