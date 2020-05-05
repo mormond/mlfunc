@@ -25,7 +25,7 @@
         },
         "functionAppName": {
             "type": "string"
-        }        
+        }
     },
     "variables": {
         "networkInterfaceName": "dep-if",
@@ -59,7 +59,7 @@
         {
             "name": "[variables('networkInterfaceName')]",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -89,7 +89,7 @@
         {
             "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-02-01",
+            "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": "[variables('networkSecurityGroupRules')]"
@@ -98,7 +98,7 @@
         {
             "name": "[variables('virtualNetworkName')]",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
             "properties": {
                 "addressSpace": {
@@ -110,7 +110,7 @@
         {
             "name": "[variables('publicIpAddressName')]",
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2019-02-01",
+            "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
             "properties": {
                 "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
@@ -122,7 +122,7 @@
         {
             "name": "[variables('virtualMachineName')]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-06-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
@@ -162,7 +162,7 @@
         {
             "name": "[concat(variables('virtualMachineName'),'/installcustomscript')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2019-03-01",
+            "apiVersion": "2020-06-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
@@ -177,7 +177,9 @@
                 "settings": {
                     "fileUris": [
                         "[concat(parameters('_artifactsLocation'), '/funcdeploy.sh')]"
-                    ],
+                    ]
+                },
+                "protectedSettings": {
                     "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'))]"
                 }
             }
