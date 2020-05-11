@@ -1,30 +1,21 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "defaultvalue": "[resourceGroup().location]",
-            "type": "string"
-        },
-        "sp_ID": {
-            "defaultValue": "",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Select the Azure region for the resources"
+            }
         }
     },
     "variables": {
-        "location": "[parameters('location')]",
-        "functionAppName": "[concat('funcapp', uniqueString(resourceGroup().id))]",
-        "hostingPlanName": "[variables('functionAppName')]",
-        "applicationInsightsName": "[variables('functionAppName')]",
-        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
-        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "adminUsername": "",
-        "adminPassword": "",
-        "sp_ID": "[parameters('sp_ID')]",
-        "sp_Secret": "",
-        "sp_Tenant": "",
-        "_artifactsLocation": "[deployment().properties.templateLink.uri]",
-        "linkedTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
+        "spUsernameName": "spUsername",
+        "vaultName": "managedapps",
+        "secretName": "spPassword",
+        "vaultResourceGroupName": "ContainerRegistry",
+        "vaultSubscription": "012f1462-c8ff-4ca5-be75-9a6360ab645d"
     },
     "resources": [
         {
@@ -42,126 +33,221 @@
             }
         },
         {
-            "apiVersion": "2019-06-01",
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('storageAccountName')]",
-            "location": "[variables('location')]",
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "properties": {
-                "supportsHttpsTrafficOnly": true
-            }
-        },
-        {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2019-08-01",
-            "name": "[variables('hostingPlanName')]",
-            "location": "[variables('location')]",
-            "kind": "linux",
-            "sku": {
-                "Name": "Y1",
-                "Tier": "Dynamic"
-            },
-            "properties": {
-                "name": "[variables('hostingPlanName')]",
-                "workerSize": "0",
-                "workerSizeId": "0",
-                "numberOfWorkers": "1",
-                "reserved": true
-            }
-        },
-        {
-            "apiVersion": "2019-08-01",
-            "type": "Microsoft.Web/sites",
-            "name": "[variables('functionAppName')]",
-            "location": "[variables('location')]",
-            "kind": "functionapp,linux",
-            "dependsOn": [
-                "[concat('microsoft.insights/components/', variables('applicationInsightsName'))]",
-                "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
-            ],
-            "properties": {
-                "name": "[variables('functionAppName')]",
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-                "clientAffinityEnabled": false,
-                "siteConfig": {
-                    "appSettings": [
-                        {
-                            "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2019-06-01').keys[0].value)]"
-                        },
-                        {
-                            "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~3"
-                        },
-                        {
-                            "name": "FUNCTIONS_WORKER_RUNTIME",
-                            "value": "python"
-                        },
-                        {
-                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "apiVersion": "2020-02-02-preview",
-            "name": "[variables('applicationInsightsName')]",
-            "type": "microsoft.insights/components",
-            "location": "[variables('location')]",
-            "tags": {
-                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
-            },
-            "properties": {
-                "ApplicationId": "[variables('applicationInsightsName')]",
-                "Request_Source": "IbizaWebAppExtensionCreate"
-            }
-        },
-        {
-            "name": "linkedTemplate",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2018-05-01",
+            "name": "dynamicSecret",
             "properties": {
                 "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('linkedTemplateUri')]"
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
                 },
                 "parameters": {
-                    "location": {
-                        "value": "[variables('location')]"
+                    "spUsername": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
+                            },
+                            "secretName": "[variables('spUsernameName')]"
+                        }
                     },
-                    "adminUsername": {
-                        "value": "[variables('adminUsername')]"
+                    "spPassword": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
+                            },
+                            "secretName": "[variables('secretName')]"
+                        }
                     },
-                    "adminPassword": {
-                        "value": "[variables('adminPassword')]"
+                    "spTenant": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
+                            },
+                            "secretName": "[variables('secretName')]"
+                        }
                     },
-                    "_artifactsLocation": {
-                        "value": "[variables('_artifactsLocation')]"
+                    "vmAdminUsername": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
+                            },
+                            "secretName": "[variables('secretName')]"
+                        }
                     },
-                    "_artifactsLocationSasToken": {
-                        "value": "None"
-                    },                    
-                    "sp_ID": {
-                        "value": "[variables('sp_ID')]"
+                    "vmAdminPassword": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
+                            },
+                            "secretName": "[variables('secretName')]"
+                        }
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "spUsername": {
+                            "type": "securestring"
+                        },
+                        "spPassword": {
+                            "defaultValue": "",
+                            "type": "securestring"
+                        },
+                        "spTenant": {
+                            "defaultValue": "",
+                            "type": "securestring"
+                        },
+                        "vmAdminUsername": {
+                            "defaultValue": "",
+                            "type": "securestring"
+                        },
+                        "vmAdminPassword": {
+                            "defaultValue": "",
+                            "type": "securestring"
+                        }
                     },
-                    "sp_Secret": {
-                        "value": "[variables('sp_Secret')]"
+                    "variables": {
+                        "location": "[parameters('location')]",
+                        "functionAppName": "[concat('funcapp', uniqueString(resourceGroup().id))]",
+                        "hostingPlanName": "[variables('functionAppName')]",
+                        "applicationInsightsName": "[variables('functionAppName')]",
+                        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+                        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+                        "vmAdminUsername": "[parameters('vmAdminUsername')]",
+                        "vmAdminPassword": "[parameters('vmAdminPassword')]",
+                        "spUsername": "[parameters('spUsername')]",
+                        "spPassword": "[parameters('spPassword')]",
+                        "spTenant": "[parameters('spTenant')]",
+                        "_artifactsLocation": "[deployment().properties.templateLink.uri]",
+                        "linkedTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
                     },
-                    "sp_Tenant": {
-                        "value": "[variables('sp_Tenant')]"
-                    },
-                    "functionAppName": {
-                        "value": "[variables('functionAppName')]"
+                    "resources": [
+                        {
+                            "apiVersion": "2019-06-01",
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "[variables('storageAccountName')]",
+                            "location": "[variables('location')]",
+                            "sku": {
+                                "name": "Standard_LRS"
+                            },
+                            "properties": {
+                                "supportsHttpsTrafficOnly": true
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Web/serverfarms",
+                            "apiVersion": "2019-08-01",
+                            "name": "[variables('hostingPlanName')]",
+                            "location": "[variables('location')]",
+                            "kind": "linux",
+                            "sku": {
+                                "Name": "Y1",
+                                "Tier": "Dynamic"
+                            },
+                            "properties": {
+                                "name": "[variables('hostingPlanName')]",
+                                "workerSize": "0",
+                                "workerSizeId": "0",
+                                "numberOfWorkers": "1",
+                                "reserved": true
+                            }
+                        },
+                        {
+                            "apiVersion": "2019-08-01",
+                            "type": "Microsoft.Web/sites",
+                            "name": "[variables('functionAppName')]",
+                            "location": "[variables('location')]",
+                            "kind": "functionapp,linux",
+                            "dependsOn": [
+                                "[concat('microsoft.insights/components/', variables('applicationInsightsName'))]",
+                                "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
+                                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+                            ],
+                            "properties": {
+                                "name": "[variables('functionAppName')]",
+                                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                                "clientAffinityEnabled": false,
+                                "siteConfig": {
+                                    "appSettings": [
+                                        {
+                                            "name": "AzureWebJobsStorage",
+                                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2019-06-01').keys[0].value)]"
+                                        },
+                                        {
+                                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                                            "value": "~3"
+                                        },
+                                        {
+                                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                                            "value": "python"
+                                        },
+                                        {
+                                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "apiVersion": "2020-02-02-preview",
+                            "name": "[variables('applicationInsightsName')]",
+                            "type": "microsoft.insights/components",
+                            "location": "[variables('location')]",
+                            "tags": {
+                                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
+                            },
+                            "properties": {
+                                "ApplicationId": "[variables('applicationInsightsName')]",
+                                "Request_Source": "IbizaWebAppExtensionCreate"
+                            }
+                        },
+                        {
+                            "name": "linkedTemplate",
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-09-01",
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('linkedTemplateUri')]"
+                                },
+                                "parameters": {
+                                    "location": {
+                                        "value": "[variables('location')]"
+                                    },
+                                    "adminUsername": {
+                                        "value": "[variables('adminUsername')]"
+                                    },
+                                    "adminPassword": {
+                                        "value": "[variables('adminPassword')]"
+                                    },
+                                    "_artifactsLocation": {
+                                        "value": "[variables('_artifactsLocation')]"
+                                    },
+                                    "_artifactsLocationSasToken": {
+                                        "value": "None"
+                                    },
+                                    "sp_ID": {
+                                        "value": "[variables('sp_ID')]"
+                                    },
+                                    "sp_Secret": {
+                                        "value": "[variables('sp_Secret')]"
+                                    },
+                                    "sp_Tenant": {
+                                        "value": "[variables('sp_Tenant')]"
+                                    },
+                                    "functionAppName": {
+                                        "value": "[variables('functionAppName')]"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "outputs": {
                     }
                 }
             }
         }
-    ],
-    "outputs": {
-    }
+    ]
 }

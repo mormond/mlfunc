@@ -56,7 +56,7 @@
         "virtualMachineName": "deployment-box",
         "osDiskType": "Premium_LRS",
         "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'))]",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
         "bashScriptUri": "[uri(parameters('_artifactsLocation'), 'scripts/funcdeploy.sh')]",
         "pythonPackageUri": "[uri(parameters('_artifactsLocation'), 'scripts/apppackage.zip')]"
     },
