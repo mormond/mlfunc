@@ -95,7 +95,7 @@
             "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
-            "location": "[parameters('location')]",
+            "location": "[parameters('location')]"
         },
         {
             "name": "[variables('virtualNetworkName')]",
