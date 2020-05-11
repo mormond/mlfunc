@@ -1,9 +1,13 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
             "type": "string"
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "defaultValue": "Standard_B1s"
         },
         "adminUsername": {
             "type": "string"
@@ -23,6 +27,9 @@
         "_artifactsLocation": {
             "type": "string"
         },
+        "_artifactsLocationSasToken": {
+            "type": "securestring"
+        },
         "functionAppName": {
             "type": "string"
         }
@@ -30,8 +37,6 @@
     "variables": {
         "networkInterfaceName": "dep-if",
         "networkSecurityGroupName": "dep-sg",
-        "networkSecurityGroupRules": [
-        ],
         "subnetName": "dep-subnet",
         "virtualNetworkName": "dep-vnet",
         "addressPrefixes": [
@@ -50,10 +55,8 @@
         "publicIpAddressSku": "Basic",
         "virtualMachineName": "deployment-box",
         "osDiskType": "Premium_LRS",
-        "virtualMachineSize": "Standard_B1s",
-        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'))]",
         "bashScriptUri": "[uri(parameters('_artifactsLocation'), 'scripts/funcdeploy.sh')]",
         "pythonPackageUri": "[uri(parameters('_artifactsLocation'), 'scripts/apppackage.zip')]"
     },
@@ -78,7 +81,7 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                             }
                         }
                     }
@@ -93,9 +96,6 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": "[variables('networkSecurityGroupRules')]"
-            }
         },
         {
             "name": "[variables('virtualNetworkName')]",
@@ -131,7 +131,7 @@
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "[variables('virtualMachineSize')]"
+                    "vmSize": "[parameters('virtualMachineSize')]"
                 },
                 "storageProfile": {
                     "osDisk": {
@@ -169,8 +169,6 @@
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
             ],
-            "tags": {
-            },
             "properties": {
                 "publisher": "Microsoft.Azure.Extensions",
                 "type": "CustomScript",
@@ -179,7 +177,10 @@
                 "settings": {
                     "fileUris": [
                         "[variables('bashScriptUri')]"
-                    ]
+                    ],
+                    "saasToken": {
+                        "redundantSaaSToken": "[parameters('_artifactsLocationSasToken')]"
+                    }
                 },
                 "protectedSettings": {
                     "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'), ' ', variables('pythonPackageUri'))]"
