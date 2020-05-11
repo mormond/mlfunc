@@ -5,6 +5,10 @@
         "location": {
             "defaultvalue": "[resourceGroup().location]",
             "type": "string"
+        },
+        "sp_ID": {
+            "defaultValue": "",
+            "type": "string"
         }
     },
     "variables": {
@@ -14,9 +18,9 @@
         "applicationInsightsName": "[variables('functionAppName')]",
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "adminUsername": "deployadmin",
+        "adminUsername": "",
         "adminPassword": "",
-        "sp_ID": "",
+        "sp_ID": "[parameters('sp_ID')]",
         "sp_Secret": "",
         "sp_Tenant": "",
         "_artifactsLocation": "[deployment().properties.templateLink.uri]",
@@ -64,8 +68,7 @@
                 "workerSize": "0",
                 "workerSizeId": "0",
                 "numberOfWorkers": "1",
-                "reserved": true,
-                "hostingEnvironment": ""
+                "reserved": true
             }
         },
         {
@@ -82,7 +85,6 @@
             "properties": {
                 "name": "[variables('functionAppName')]",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-                "hostingEnvironment": "",
                 "clientAffinityEnabled": false,
                 "siteConfig": {
                     "appSettings": [
@@ -107,7 +109,7 @@
             }
         },
         {
-            "apiVersion": "2015-05-01",
+            "apiVersion": "2020-02-02-preview",
             "name": "[variables('applicationInsightsName')]",
             "type": "microsoft.insights/components",
             "location": "[variables('location')]",
@@ -141,6 +143,9 @@
                     "_artifactsLocation": {
                         "value": "[variables('_artifactsLocation')]"
                     },
+                    "_artifactsLocationSasToken": {
+                        "value": "None"
+                    },                    
                     "sp_ID": {
                         "value": "[variables('sp_ID')]"
                     },
@@ -156,5 +161,7 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": {
+    }
 }
