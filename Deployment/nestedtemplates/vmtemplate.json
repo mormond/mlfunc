@@ -177,10 +177,7 @@
                 "settings": {
                     "fileUris": [
                         "[variables('bashScriptUri')]"
-                    ],
-                    "saasToken": {
-                        "redundantSaaSToken": "[parameters('_artifactsLocationSasToken')]"
-                    }
+                    ]
                 },
                 "protectedSettings": {
                     "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'), ' ', variables('pythonPackageUri'))]"
