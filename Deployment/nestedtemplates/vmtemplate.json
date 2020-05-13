@@ -9,19 +9,19 @@
             "type": "string",
             "defaultValue": "Standard_B1s"
         },
-        "adminUsername": {
+        "vmAdminUsername": {
             "type": "string"
         },
-        "adminPassword": {
+        "vmAdminPassword": {
             "type": "securestring"
         },
-        "sp_ID": {
+        "spUsername": {
             "type": "string"
         },
-        "sp_Secret": {
+        "spPassword": {
             "type": "securestring"
         },
-        "sp_Tenant": {
+        "spTenant": {
             "type": "string"
         },
         "_artifactsLocation": {
@@ -156,8 +156,8 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('virtualMachineName')]",
-                    "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
+                    "adminUsername": "[parameters('vmAdminUsername')]",
+                    "adminPassword": "[parameters('vmAdminPassword')]"
                 }
             }
         },
@@ -180,15 +180,15 @@
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('sp_ID'), ' ', parameters('sp_Secret'), ' ', parameters('sp_Tenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'), ' ', variables('pythonPackageUri'))]"
+                    "commandToExecute": "[concat('bash funcdeploy.sh ', parameters('spUsername'), ' ', parameters('spPassword'), ' ', parameters('spTenant'), ' ', resourceGroup().name, ' ', parameters('functionAppName'), ' ', variables('pythonPackageUri'))]"
                 }
             }
         }
     ],
     "outputs": {
-        "adminUsername": {
+        "vmAdminUsername": {
             "type": "string",
-            "value": "[parameters('adminUsername')]"
+            "value": "[parameters('vmAdminUsername')]"
         }
     }
 }
