@@ -115,7 +115,6 @@
                         "location": "[parameters('location')]",
                         "functionAppName": "[concat('funcapp', uniqueString(resourceGroup().id))]",
                         "hostingPlanName": "[variables('functionAppName')]",
-                        "applicationInsightsName": "[variables('functionAppName')]",
                         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
                         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
                         "vmAdminUsername": "[parameters('vmAdminUsername')]",
@@ -163,7 +162,6 @@
                             "location": "[variables('location')]",
                             "kind": "functionapp,linux",
                             "dependsOn": [
-                                "[concat('microsoft.insights/components/', variables('applicationInsightsName'))]",
                                 "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
                                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
                             ],
@@ -184,26 +182,9 @@
                                         {
                                             "name": "FUNCTIONS_WORKER_RUNTIME",
                                             "value": "python"
-                                        },
-                                        {
-                                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
                                         }
                                     ]
                                 }
-                            }
-                        },
-                        {
-                            "apiVersion": "2020-02-02-preview",
-                            "name": "[variables('applicationInsightsName')]",
-                            "type": "microsoft.insights/components",
-                            "location": "[variables('location')]",
-                            "tags": {
-                                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
-                            },
-                            "properties": {
-                                "ApplicationId": "[variables('applicationInsightsName')]",
-                                "Request_Source": "IbizaWebAppExtensionCreate"
                             }
                         },
                         {
