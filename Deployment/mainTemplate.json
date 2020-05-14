@@ -11,7 +11,6 @@
         }
     },
     "variables": {
-        "spUsernameName": "spUsername",
         "vaultName": "managedapps",
         "secretName": "spPassword",
         "vaultResourceGroupName": "ContainerRegistry",
@@ -42,13 +41,18 @@
                     "scope": "inner"
                 },
                 "parameters": {
-                    "_artifactsLocation": "[deployment().properties.templateLink.uri]",
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "https://meobucket.blob.core.windows.net/morescripts/"
+                    },
                     "spUsername": {
                         "reference": {
                             "keyVault": {
                                 "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
                             },
-                            "secretName": "[variables('spUsernameName')]"
+                            "secretName": "spUsername"
                         }
                     },
                     "spPassword": {
@@ -56,7 +60,7 @@
                             "keyVault": {
                                 "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
                             },
-                            "secretName": "[variables('secretName')]"
+                            "secretName": "spPassword"
                         }
                     },
                     "spTenant": {
@@ -64,7 +68,7 @@
                             "keyVault": {
                                 "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
                             },
-                            "secretName": "[variables('secretName')]"
+                            "secretName": "spTenant"
                         }
                     },
                     "vmAdminUsername": {
@@ -72,7 +76,7 @@
                             "keyVault": {
                                 "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
                             },
-                            "secretName": "[variables('secretName')]"
+                            "secretName": "vmAdminUsername"
                         }
                     },
                     "vmAdminPassword": {
@@ -80,7 +84,7 @@
                             "keyVault": {
                                 "id": "[resourceId(variables('vaultSubscription'), variables('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', variables('vaultName'))]"
                             },
-                            "secretName": "[variables('secretName')]"
+                            "secretName": "vmAdminPassword"
                         }
                     }
                 },
@@ -88,6 +92,9 @@
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
+                        "location": {
+                            "type": "string"
+                        },
                         "_artifactsLocation": {
                             "type": "string"
                         },
@@ -194,10 +201,10 @@
                                     "location": {
                                         "value": "[parameters('location')]"
                                     },
-                                    "adminUsername": {
+                                    "vmAdminUsername": {
                                         "value": "[parameters('vmAdminUsername')]"
                                     },
-                                    "adminPassword": {
+                                    "vmAdminPassword": {
                                         "value": "[parameters('vmAdminPassword')]"
                                     },
                                     "_artifactsLocation": {
@@ -206,13 +213,13 @@
                                     "_artifactsLocationSasToken": {
                                         "value": "None"
                                     },
-                                    "sp_ID": {
+                                    "spUsername": {
                                         "value": "[parameters('spUsername')]"
                                     },
-                                    "sp_Secret": {
+                                    "spPassword": {
                                         "value": "[parameters('spPassword')]"
                                     },
-                                    "sp_Tenant": {
+                                    "spTenant": {
                                         "value": "[parameters('spTenant')]"
                                     },
                                     "functionAppName": {
