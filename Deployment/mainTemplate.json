@@ -112,16 +112,10 @@
                         }
                     },
                     "variables": {
-                        "location": "[parameters('location')]",
                         "functionAppName": "[concat('funcapp', uniqueString(resourceGroup().id))]",
                         "hostingPlanName": "[variables('functionAppName')]",
                         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
                         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-                        "vmAdminUsername": "[parameters('vmAdminUsername')]",
-                        "vmAdminPassword": "[parameters('vmAdminPassword')]",
-                        "spUsername": "[parameters('spUsername')]",
-                        "spPassword": "[parameters('spPassword')]",
-                        "spTenant": "[parameters('spTenant')]",
                         "linkedTemplateUri": "[uri(parameters('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
                     },
                     "resources": [
@@ -129,7 +123,7 @@
                             "apiVersion": "2019-06-01",
                             "type": "Microsoft.Storage/storageAccounts",
                             "name": "[variables('storageAccountName')]",
-                            "location": "[variables('location')]",
+                            "location": "[parameters('location')]",
                             "sku": {
                                 "name": "Standard_LRS"
                             },
@@ -141,7 +135,7 @@
                             "type": "Microsoft.Web/serverfarms",
                             "apiVersion": "2019-08-01",
                             "name": "[variables('hostingPlanName')]",
-                            "location": "[variables('location')]",
+                            "location": "[parameters('location')]",
                             "kind": "linux",
                             "sku": {
                                 "Name": "Y1",
@@ -159,7 +153,7 @@
                             "apiVersion": "2019-08-01",
                             "type": "Microsoft.Web/sites",
                             "name": "[variables('functionAppName')]",
-                            "location": "[variables('location')]",
+                            "location": "[parameters('location')]",
                             "kind": "functionapp,linux",
                             "dependsOn": [
                                 "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
@@ -198,13 +192,13 @@
                                 },
                                 "parameters": {
                                     "location": {
-                                        "value": "[variables('location')]"
+                                        "value": "[parameters('location')]"
                                     },
                                     "adminUsername": {
-                                        "value": "[variables('adminUsername')]"
+                                        "value": "[parameters('vmAdminUsername')]"
                                     },
                                     "adminPassword": {
-                                        "value": "[variables('adminPassword')]"
+                                        "value": "[parameters('vmAdminPassword')]"
                                     },
                                     "_artifactsLocation": {
                                         "value": "[parameters('_artifactsLocation')]"
@@ -213,13 +207,13 @@
                                         "value": "None"
                                     },
                                     "sp_ID": {
-                                        "value": "[variables('sp_ID')]"
+                                        "value": "[parameters('spUsername')]"
                                     },
                                     "sp_Secret": {
-                                        "value": "[variables('sp_Secret')]"
+                                        "value": "[parameters('spPassword')]"
                                     },
                                     "sp_Tenant": {
-                                        "value": "[variables('sp_Tenant')]"
+                                        "value": "[parameters('spTenant')]"
                                     },
                                     "functionAppName": {
                                         "value": "[variables('functionAppName')]"
