@@ -132,5 +132,4 @@ local.settings.json
 metadata.json
 requirements.zip
 Deployment/linuxfunctionvanilla.json
-Deployment/nestedtemplates.zip
-Deployment/scripts/apppackage.zip
+Deployment/**/*.zip
