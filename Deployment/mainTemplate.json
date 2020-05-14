@@ -42,6 +42,7 @@
                     "scope": "inner"
                 },
                 "parameters": {
+                    "_artifactsLocation": "[deployment().properties.templateLink.uri]",
                     "spUsername": {
                         "reference": {
                             "keyVault": {
@@ -87,6 +88,9 @@
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
+                        "_artifactsLocation": {
+                            "type": "string"
+                        },
                         "spUsername": {
                             "type": "securestring"
                         },
@@ -119,8 +123,7 @@
                         "spUsername": "[parameters('spUsername')]",
                         "spPassword": "[parameters('spPassword')]",
                         "spTenant": "[parameters('spTenant')]",
-                        "_artifactsLocation": "[deployment().properties.templateLink.uri]",
-                        "linkedTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
+                        "linkedTemplateUri": "[uri(parameters('_artifactsLocation'), 'nestedtemplates/vmtemplate.json')]"
                     },
                     "resources": [
                         {
@@ -223,7 +226,7 @@
                                         "value": "[variables('adminPassword')]"
                                     },
                                     "_artifactsLocation": {
-                                        "value": "[variables('_artifactsLocation')]"
+                                        "value": "[parameters('_artifactsLocation')]"
                                     },
                                     "_artifactsLocationSasToken": {
                                         "value": "None"
