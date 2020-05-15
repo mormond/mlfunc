@@ -8,6 +8,14 @@
             "metadata": {
                 "description": "Select the Azure region for the resources"
             }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "defaultValue": ""
         }
     },
     "variables": {
@@ -45,7 +53,11 @@
                         "value": "[parameters('location')]"
                     },
                     "_artifactsLocation": {
-                        "value": "https://meobucket.blob.core.windows.net/morescripts/"
+                        "value": "[parameters('_artifactsLocation')]"
+
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "spUsername": {
                         "reference": {
@@ -98,6 +110,9 @@
                         "_artifactsLocation": {
                             "type": "string"
                         },
+                        "_artifactsLocationSasToken": {
+                            "type": "securestring"
+                        },                        
                         "spUsername": {
                             "type": "securestring"
                         },
@@ -211,7 +226,7 @@
                                         "value": "[parameters('_artifactsLocation')]"
                                     },
                                     "_artifactsLocationSasToken": {
-                                        "value": "None"
+                                        "value": "[parameters('_artifactsLocationSasToken')]"
                                     },
                                     "spUsername": {
                                         "value": "[parameters('spUsername')]"
