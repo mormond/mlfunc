@@ -9,10 +9,6 @@
                 "description": "Select the Azure region for the resources"
             }
         },
-        "_artifactsLocation": {
-            "type": "string",
-            "defaultValue": ""
-        },
         "_artifactsLocationSasToken": {
             "type": "securestring",
             "defaultValue": ""
@@ -22,7 +18,8 @@
         "vaultName": "managedapps",
         "secretName": "spPassword",
         "vaultResourceGroupName": "ContainerRegistry",
-        "vaultSubscription": ""
+        "vaultSubscription": "",
+        "_artifactsLocation": "[deployment().properties.templateLink.uri]"
     },
     "resources": [
         {
@@ -53,8 +50,7 @@
                         "value": "[parameters('location')]"
                     },
                     "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-
+                        "value": "[variables('_artifactsLocation')]"
                     },
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
